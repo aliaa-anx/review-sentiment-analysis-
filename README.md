@@ -164,16 +164,19 @@ Training setup:
 
 | Model | Accuracy | Precision | Recall | F1-Score |
 |-------|----------|-----------|--------|----------|
-| LR + TF-IDF | 89.62% | - | - | - |
-| LSTM | ~88% | - | - | - |
+| LR + TF-IDF | 89.62% | 88.8% | 90.6% | 89.7% |
+| LSTM | ~88% | 89.0% | 84.9%| 86.9% |
 
-> Final numbers will be updated after LSTM training completes.
+
 
 ### Confusion Matrix
 Shows breakdown of correct and incorrect predictions for both models.
+<img width="2100" height="750" alt="confusion_matrices" src="https://github.com/user-attachments/assets/10038ab2-6ece-4d38-9e64-17d11af0246e" />
+
 
 ### Comparison Chart
-Side-by-side bar chart comparing Accuracy, Precision, Recall, and F1-Score.
+<img width="1800" height="900" alt="model_comparison" src="https://github.com/user-attachments/assets/fd15ce77-4f61-42e0-9654-a6215f800fab" />
+
 
 ---
 
@@ -200,6 +203,7 @@ Side-by-side bar chart comparing Accuracy, Precision, Recall, and F1-Score.
 🟢 Most positive feedback is related to: great, story, performance
 🔴 Most complaints are related to      : worst, boring, terrible
 ```
+<img width="2400" height="1800" alt="insights" src="https://github.com/user-attachments/assets/acbef537-5ae7-4835-a2ab-adac418b96dd" />
 
 ### Simple Statistics
 ```
