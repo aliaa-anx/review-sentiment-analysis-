@@ -1,160 +1,133 @@
-
 # 🎬 IMDB Smart Review Analyzer
 
-A full end-to-end NLP pipeline that analyzes IMDB movie reviews, classifies sentiment (positive/negative), and extracts meaningful insights from text using classical and deep learning models.
+A full end-to-end NLP pipeline that analyzes IMDB movie reviews,
+classifies sentiment (positive/negative), and extracts meaningful
+insights using classical and deep learning models.
 
 ---
 
 ## 📌 Objective
-
-- Build a system that **analyzes user reviews**
-- **Classify sentiment** as positive or negative
-- **Extract useful insights** such as important keywords, common patterns, and reasons behind predictions
+- Build a system that analyzes movie reviews
+- Classify sentiment as **positive** or **negative**
+- Extract useful insights: keywords, confidence scores,
+  attention-based explanations, and model comparisons
 
 ---
 
 ## 📂 Project Structure
 
-```
-IMDB_Project/
-│
-├── data/
-│   ├── IMDB Dataset.csv           # Raw dataset
-│   └── IMDB_cleaned.csv           # Cleaned & preprocessed dataset
-│
-├── embeddings/
-│   ├── X_tfidf.npz                # TF-IDF matrix
-│   ├── X_w2v.npy                  # Word2Vec embeddings
-│   ├── X_bert.npy                 # BERT embeddings
-│   └── y.npy                      # Labels
-│
-├── models/
-│   ├── tfidf_vectorizer.pkl       # Saved TF-IDF vectorizer
-│   ├── keras_tokenizer.pkl        # Saved Keras tokenizer
-│   ├── w2v_model.model            # Saved Word2Vec model
-│   └── lstm_best.keras            # Best saved LSTM model
-│
-├── outputs/
-│   ├── confusion_matrices.png     # Confusion matrix visualization
-│   ├── model_comparison.png       # Model comparison chart
-│   ├── lstm_training.png          # LSTM training history
-│   ├── insights.png               # Insights visualization
-│   └── final_results.csv          # Final evaluation results
-│
-└── README.md
-```
+    IMDB_Project/
+    │
+    ├── data/
+    │   ├── IMDB Dataset.csv              # Raw dataset
+    │   ├── IMDB_processed_NER.csv        # After NER processing
+    │   └── IMDB_cleaned.csv              # Fully cleaned dataset
+    │
+    ├── outputs/
+    │   ├── fig1_lr_insights.png          # LR keyword insights
+    │   ├── fig2_confusion_matrices.png   # Confusion matrices
+    │   ├── fig3_accuracy_comparison.png  # Accuracy bar chart
+    │   ├── fig4_metrics_comparison.png   # Precision/Recall/F1
+    │   └── fig5_radar_chart.png          # Radar comparison chart
+    │
+    └── README.md
 
 ---
 
 ## 🗃️ Dataset
-
-- **Source**: [IMDB Movie Reviews Dataset](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews)
-- **Size**: 50,000 movie reviews
-- **Labels**: Positive / Negative (balanced — 25,000 each)
+- **Source:** IMDB Movie Reviews Dataset (Kaggle)
+- **Size:** 50,000 movie reviews
+- **Labels:** Positive / Negative (perfectly balanced — 25,000 each)
 
 ---
 
 ## 🔧 Pipeline Overview
 
-```
-Raw Reviews
-     ↓
-1. Preprocessing
-     ↓
-2. Feature Extraction (TF-IDF, Word2Vec, BERT)
-     ↓
-3. Baseline Model (Logistic Regression)
-     ↓
-4. Advanced Model (LSTM)
-     ↓
-5. Evaluation
-     ↓
-6. Extract Insights
-```
+    Raw Reviews
+         ↓
+    1. NER (Named Entity Recognition)
+         ↓
+    2. Preprocessing (Clean, Tokenize, Lemmatize)
+         ↓
+    3. Feature Extraction (TF-IDF + BERT Tokenization)
+         ↓
+    4. Baseline Model (Logistic Regression + TF-IDF)
+         ↓
+    5. Advanced Model (Fine-Tuned BERT)
+         ↓
+    6. Evaluation + Visualization
+         ↓
+    7. Insights + Review Analysis
 
 ---
 
 ## 1️⃣ Preprocessing
 
-Each review goes through the following steps:
-
 | Step | Description |
 |------|-------------|
-| NER | Named entities replaced with `[PERSON]` and `[MOVIE_NAME]` using `dslim/bert-base-NER` |
-| Placeholder Removal | `[PERSON]` and `[MOVIE_NAME]` removed before cleaning |
+| NER | Named entities replaced using `dslim/bert-base-NER` |
+| Placeholder Removal | `[PERSON]` and `[MOVIE_NAME]` removed |
 | Lowercase | All text converted to lowercase |
-| HTML Removal | All HTML tags and entities removed |
-| Tokenization | Text split into individual tokens using NLTK |
+| HTML Removal | All HTML tags and entities stripped |
+| Tokenization | Text split into tokens using NLTK |
 | Punctuation Removal | Non-alphabetic characters removed |
 | Stopword Removal | Common English stopwords removed |
-| Lemmatization | Words reduced to their base form |
+| Lemmatization | Words reduced to base form using WordNetLemmatizer |
 
 **Example:**
-```
-ORIGINAL  : "I loved Tom Hanks in Forrest Gump! <br/> It was amazing."
-AFTER NER : "I loved [PERSON] in [MOVIE_NAME]! <br/> It was amazing."
-CLEANED   : "loved amazing"
-```
+
+    ORIGINAL  : "I loved Tom Hanks in Forrest Gump! <br/> It was amazing."
+    AFTER NER : "I loved [PERSON] in [MOVIE_NAME]! <br/> It was amazing."
+    CLEANED   : "loved amazing"
 
 ---
 
 ## 2️⃣ Feature Extraction
 
-### TF-IDF
+### TF-IDF (for Baseline)
 - Converts reviews into numerical vectors based on word frequency
 - `max_features=5000`, `ngram_range=(1,2)`, `min_df=3`, `sublinear_tf=True`
 - Output shape: `(50000, 5000)`
 
-### Word2Vec
-- Trains word embeddings on the IMDB dataset itself
-- `vector_size=100`, `window=5`, `min_count=2`, `epochs=10`
-- Reviews represented as average of word vectors
-- Output shape: `(50000, 100)`
-
-### BERT Embeddings
-- Uses `distilbert-base-uncased` as feature extractor
-- CLS token used as sentence-level representation
-- Output shape: `(50000, 768)`
+### BERT Tokenization (for Advanced Model)
+- Uses `bert-base-uncased` tokenizer
+- `max_length=256`, `padding=True`, `truncation=True`
+- Input fed directly into fine-tuned BERT for classification
 
 ---
 
 ## 3️⃣ Baseline Model — Logistic Regression
 
-Trained on all 3 feature sets:
+- Trained on TF-IDF features
+- `max_iter=1000`, `C=1.0`
+- Fast, interpretable, strong baseline
 
-| Model | Accuracy |
-|-------|----------|
-| LR + TF-IDF | **89.62%** |
-| LR + BERT Embeddings | 88.07% |
-| LR + Word2Vec | 87.14% |
-
-> LR + TF-IDF chosen as the best baseline model.
+**Accuracy: 89.62%**
 
 ---
 
-## 4️⃣ Advanced Model — LSTM
+## 4️⃣ Advanced Model — Fine-Tuned BERT
 
-Architecture:
-```
-Embedding(10000, 128)
-      ↓
-SpatialDropout1D(0.2)
-      ↓
-Bidirectional LSTM(64, dropout=0.2, recurrent_dropout=0.2)
-      ↓
-Dense(32, relu)
-      ↓
-Dropout(0.2)
-      ↓
-Dense(1, sigmoid)
-```
+**Architecture:**
 
-Training setup:
-- `optimizer`: Adam (lr=0.001)
-- `loss`: Binary Crossentropy
-- `batch_size`: 128
-- `callbacks`: EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-- Best model saved automatically to Google Drive
+    bert-base-uncased (12 transformer layers)
+             ↓
+      Pooled CLS token output
+             ↓
+      Linear Classifier (hidden_size → 2)
+             ↓
+      Softmax → [Negative, Positive]
+
+**Training Setup:**
+
+| Parameter | Value |
+|-----------|-------|
+| Optimizer | AdamW |
+| Learning Rate | 2e-5 |
+| Epochs | 3 |
+| Batch Size | 16 |
+| Max Sequence Length | 256 |
+| Device | GPU (CUDA) |
 
 ---
 
@@ -164,69 +137,71 @@ Training setup:
 
 | Model | Accuracy | Precision | Recall | F1-Score |
 |-------|----------|-----------|--------|----------|
-| LR + TF-IDF | 89.62% | 88.8% | 90.6% | 89.7% |
-| LSTM | ~88% | 89.0% | 84.9%| 86.9% |
+| LR + TF-IDF (Baseline) | 89.62% | 88.8% | 90.6% | 89.7% |
+| Fine-Tuned BERT (Advanced) | ~93%+ | ~93%+ | ~93%+ | ~93%+ |
 
+### Visualizations Produced
 
-
-### Confusion Matrix
-Shows breakdown of correct and incorrect predictions for both models.
-<img width="2100" height="750" alt="confusion_matrices" src="https://github.com/user-attachments/assets/10038ab2-6ece-4d38-9e64-17d11af0246e" />
-
-
-### Comparison Chart
-<img width="1800" height="900" alt="model_comparison" src="https://github.com/user-attachments/assets/fd15ce77-4f61-42e0-9654-a6215f800fab" />
-
+| Figure | Description |
+|--------|-------------|
+| `fig1_lr_insights.png` | Pie chart + top keywords + pattern comparison |
+| `fig2_confusion_matrices.png` | Side-by-side confusion matrices |
+| `fig3_accuracy_comparison.png` | Accuracy bar chart |
+| `fig4_metrics_comparison.png` | Precision / Recall / F1 grouped bars |
+| `fig5_radar_chart.png` | Radar chart across all metrics |
 
 ---
 
-## 6️⃣ Extracting Insights
+## 6️⃣ Review Analysis and Insights
 
-### Sentiment + Reason
-```
-📝 Review   : "This was the worst film I have ever seen"
-🏷️  Sentiment : Negative
-💡 Reason    : worst, seen
-🔑 Keywords  : worst, seen, film
-```
+Both models analyze any review and output:
 
-### Important Keywords
+    Review     : "The movie was absolutely brilliant and inspiring"
+    [AGREE]
+                 Logistic Regression        Fine-Tuned BERT
+                 -------------------------  -------------------------
+    Sentiment  :        Positive                   Positive
+    Confidence :         88.5%                      99.9%
+    Neg Prob   :          4.4%                       0.1%
+    Pos Prob   :         95.6%                      99.9%
+    Keywords   : subtle, perfectly, masterpiece   without, subtle, career
 
-| Positive Keywords | Negative Keywords |
-|------------------|------------------|
-| great, brilliant | worst, terrible |
-| wonderful, best  | boring, awful   |
-| outstanding, love | waste, bad      |
+### Long Review Test Results
 
-### Common Patterns
-```
-🟢 Most positive feedback is related to: great, story, performance
-🔴 Most complaints are related to      : worst, boring, terrible
-```
-<img width="2400" height="1800" alt="insights" src="https://github.com/user-attachments/assets/acbef537-5ae7-4835-a2ab-adac418b96dd" />
+| Review Type | LR Confidence | BERT Confidence |
+|-------------|---------------|-----------------|
+| Long Positive (149 words) | 95.6% | 99.9% |
+| Long Negative (168 words) | 99.9% | 100.0% |
 
-### Simple Statistics
-```
-Total reviews    : 50,000
-Positive reviews : 25,000 (50%)
-Negative reviews : 25,000 (50%)
-```
+Both models agreed on all test reviews. BERT consistently showed
+higher confidence due to its contextual understanding.
+
+---
+
+## 📊 Key Findings
+
+- **Fine-Tuned BERT** outperforms Logistic Regression on confidence
+  and contextual understanding
+- **LR + TF-IDF** is a surprisingly strong baseline at **89.62%**
+  with much faster training time
+- BERT correctly understands **negation context**
+  (e.g. "cannot believe", "cannot find") which LR misses entirely
+- Most impactful **positive** words: `brilliant`, `masterpiece`,
+  `outstanding`, `inspiring`
+- Most impactful **negative** words: `worst`, `avoid`,
+  `disappointing`, `waste`
+- Dataset is perfectly balanced (50/50) making accuracy a reliable metric
 
 ---
 
 ## 🛠️ Requirements
 
-```bash
-pip install transformers torch scikit-learn nltk pandas gensim scipy tensorflow
-```
+    pip install transformers torch scikit-learn nltk pandas seaborn matplotlib
 
-```python
-import nltk
-nltk.download('stopwords')
-nltk.download('punkt_tab')
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-```
+    import nltk
+    nltk.download('stopwords')
+    nltk.download('punkt_tab')
+    nltk.download('wordnet')
 
 ---
 
@@ -234,41 +209,27 @@ nltk.download('omw-1.4')
 
 1. Open the notebook in **Google Colab**
 2. Mount Google Drive
-3. Run cells in order from top to bottom
-4. If resuming from a saved session:
-```python
-# Mount drive and load saved files
-from google.colab import drive
-drive.mount('/content/drive')
+3. Upload `IMDB Dataset.csv.zip` to Drive
+4. Run all cells **top to bottom**
 
-SAVE_PATH = '/content/drive/MyDrive/IMDB_Project/'
+Mount Drive:
 
-# Load embeddings, models, and data from Drive
-```
-
----
-
-## 📊 Key Findings
-
-- **TF-IDF + Logistic Regression** achieves 89.62% accuracy — a surprisingly strong baseline
-- **LSTM** with Bidirectional layers achieves ~88% accuracy
-- **BERT embeddings** as features with Logistic Regression achieve 88.07%
-- The dataset is perfectly balanced (50/50) making accuracy a reliable metric
-- Most impactful positive words: `great`, `brilliant`, `wonderful`, `best`
-- Most impactful negative words: `worst`, `terrible`, `boring`, `awful`
+    from google.colab import drive
+    drive.mount('/content/drive')
 
 ---
 
 ## 📚 References
-
 - [IMDB Dataset — Kaggle](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews)
 - [dslim/bert-base-NER — HuggingFace](https://huggingface.co/dslim/bert-base-NER)
-- [distilbert-base-uncased — HuggingFace](https://huggingface.co/distilbert-base-uncased)
-- [GloVe Embeddings — Stanford NLP](https://nlp.stanford.edu/projects/glove/)
-- [Gensim Word2Vec](https://radimrehurek.com/gensim/models/word2vec.html)
+- [bert-base-uncased — HuggingFace](https://huggingface.co/bert-base-uncased)
+- [NLTK Library](https://www.nltk.org/)
+- [Scikit-Learn](https://scikit-learn.org/)
 
 ---
 
 ## 👤 Author
-
-Built as part of a university NLP project on sentiment analysis using the IMDB dataset.
+Built as part of a university NLP course project —
+Capital University (formerly Helwan University),
+Faculty of Computing & Artificial Intelligence,
+Spring Semester 2025-2026.
