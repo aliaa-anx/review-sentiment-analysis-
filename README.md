@@ -144,11 +144,15 @@ insights using classical and deep learning models.
 
 | Figure | Description |
 |--------|-------------|
-| `fig1_lr_insights.png` | Pie chart + top keywords + pattern comparison |
-| `fig2_confusion_matrices.png` | Side-by-side confusion matrices |
-| `fig3_accuracy_comparison.png` | Accuracy bar chart |
-| `fig4_metrics_comparison.png` | Precision / Recall / F1 grouped bars |
-| `fig5_radar_chart.png` | Radar chart across all metrics |
+| `<img width="2384" height="1770" alt="fig1_lr_insights" src="https://github.com/user-attachments/assets/025a91fb-122a-4a05-9265-63b998c736a3" />
+` | Pie chart + top keywords + pattern comparison |
+| `<img width="2034" height="740" alt="fig2_confusion_matrices" src="https://github.com/user-attachments/assets/7431d4da-90d2-4d1a-a9e3-0931cf6629c6" />
+` | Side-by-side confusion matrices |
+| `<img width="1032" height="732" alt="fig3_accuracy_comparison" src="https://github.com/user-attachments/assets/06572984-4797-4e7f-9cb7-a8f16bf68996" />
+` | Accuracy bar chart |
+| `<img width="1332" height="731" alt="fig4_metrics_comparison" src="https://github.com/user-attachments/assets/b400a815-c33f-4d5f-ba30-a923d3b89ce3" />
+` | Precision / Recall / F1 grouped bars |
+
 
 ---
 
